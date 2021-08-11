@@ -1,0 +1,30 @@
+{
+    "compilerOptions": {
+        //  as 로  가오는거 방지
+        "esModuleInterop" : true,
+        //  에러난 위치 찾아주기
+        "sourceMap" : true,
+        // 최신문법, 프론트개발 = DOM
+        "lib" : ["ES2020","DOM"],
+        // jsx = react꺼다 라고 인식
+        "jsx" : "react",
+        "module" : "ESNext",
+        "moduleResolution": "Node",
+        "target" : "ES5",
+        // 이건 꼭 켜줘야함 안 켜주면 any 남발 할 수 있음
+        "strict" : true,
+        "resolveJsonModule" : true,
+        "baseUrl" : ".",
+        "paths":{
+            "@hooks/*" : ["hooks/*"]
+            ,"@components/*" : ["components/*"]
+            ,"@layouts/*" : ["layouts/*"]
+            ,"@pages/*" : ["pages/*"]
+            ,"@utils/*" : ["utils/*"]
+            ,"@styles/*" : ["styles/*"]
+            ,"@images/*" : ["images/*"]
+
+        }
+
+    }
+}
