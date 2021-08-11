@@ -2,15 +2,13 @@ import path from 'path';
 // import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 import webpack from 'webpack';
 
-
 const isDevelopment = process.env.NODE_ENV !== 'production';
-
 const config: webpack.Configuration = {
-    name: 'slack'
-    , mode: isDevelopment ? 'development' : 'production'
-    , devtool: isDevelopment ? 'hidden-source-map' : 'inline-source-map'
-    , resolve: {
-        extensions: ['.ts', '.js', 'jsx', 'tsx', '.json'],
+    name: 'sleact',
+  mode: isDevelopment ? 'development' : 'production',
+    devtool: !isDevelopment ? 'hidden-source-map' : 'inline-source-map',
+  resolve: {
+        extensions: ['.ts', '.js', '.jsx', '.tsx', '.json'],
         alias: {
             '@hooks': path.resolve(__dirname, 'hooks')
             , '@components': path.resolve(__dirname, 'components')
@@ -37,7 +35,7 @@ const config: webpack.Configuration = {
                             },
                         ],
                         '@babel/preset-react'
-                        , '@bable/preset-typescript'
+                        , '@babel/preset-typescript'
                     ],
                 },
                 exclude: path.join(__dirname, 'node_modules'),
@@ -88,3 +86,4 @@ if (!isDevelopment && config.plugins) {
     // config.plugins.push(new BundleAnalyzerPlugin({ analyzerMode: 'static' }));
 }
     
+export default config;
