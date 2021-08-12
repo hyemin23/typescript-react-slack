@@ -1,42 +1,55 @@
 import path from 'path';
-// import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
-import webpack from 'webpack';
+import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
+import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
+import webpack, { Configuration as WebpackConfiguration } from "webpack";
+import { Configuration as WebpackDevServerConfiguration } from "webpack-dev-server";
+
+interface Configuration extends WebpackConfiguration {
+  devServer?: WebpackDevServerConfiguration;
+}
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
-const config: webpack.Configuration = {
-    name: 'sleact',
+
+const config: Configuration = {
+  name: 'sleact',
   mode: isDevelopment ? 'development' : 'production',
-    devtool: !isDevelopment ? 'hidden-source-map' : 'inline-source-map',
+  devtool: isDevelopment ? 'hidden-source-map' : 'inline-source-map',
   resolve: {
-        extensions: ['.ts', '.js', '.jsx', '.tsx', '.json'],
-        alias: {
-            '@hooks': path.resolve(__dirname, 'hooks')
-            , '@components': path.resolve(__dirname, 'components')
-            , '@layouts': path.resolve(__dirname, 'layouts')
-            , '@pages': path.resolve(__dirname, 'pages')
-            , '@typings': path.resolve(__dirname, 'typings')
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
+    alias: {
+      '@hooks': path.resolve(__dirname, 'hooks'),
+      '@components': path.resolve(__dirname, 'components'),
+      '@layouts': path.resolve(__dirname, 'layouts'),
+      '@pages': path.resolve(__dirname, 'pages'),
+      '@utils': path.resolve(__dirname, 'utils'),
+      '@typings': path.resolve(__dirname, 'typings'),
         },
-    },
-    entry: {
-        app: './client',
-    },
-    module: {
-        rules: [
-            {
-                test: /\.tsx?$/,
-                loader: 'babel-loader',
-                options: {
-                    presets: [
-                        [
-                            '@babel/preset-env',
-                            {
-                                targets: { browsers: ['last 2 versions', 'safari >= 7'] },
-                                debug: isDevelopment,
-                            },
-                        ],
-                        '@babel/preset-react'
-                        , '@babel/preset-typescript'
-                    ],
+  },
+  entry: {
+    app: './client',
+  },
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        loader: 'babel-loader',
+        options: {
+          presets: [
+            [
+              '@babel/preset-env',
+              {
+                targets: { browsers: ['IE 10'] },
+                debug: isDevelopment,
+              },
+            ],
+            '@babel/preset-react',
+            '@babel/preset-typescript',
+          ],
+          env: {
+            development: {
+              plugins: [require.resolve('react-refresh/babel')],
+                        },
+                    }
                 },
                 exclude: path.join(__dirname, 'node_modules'),
             },
@@ -48,9 +61,10 @@ const config: webpack.Configuration = {
         ],
     },
     plugins: [
-        // new ForkTsCheckerWebpackPlugin({
-        //     async: false,
-        // }),
+        // ts,webpack이랑 동시에 돌아가게 해주는 기능
+        new ForkTsCheckerWebpackPlugin({
+            async: false,
+        }),
         // react 에서 NODE_ENV 변수를 사용할 수 있게 만들어줌 원래는 backend에서만 실행 가능함(노드 런타임 때만 접근 가능하지만)
         // 해당 설정을 해주면 NODE_ENV 접근 가능
         new webpack.EnvironmentPlugin({ NODE_ENV: isDevelopment ? 'development' : 'production' }),
@@ -63,19 +77,24 @@ const config: webpack.Configuration = {
         filename: '[name].js',
         publicPath: '/dist/',
     },
-    // devServer: {
-    //     historyApiFallback: true,
-    //     port: 3090,
-    //     publickPath: '/dist/',
-    //     proxy: {
-    //     }
-    // }
+    devServer: {
+        historyApiFallback: true,       // react router 설정시 필요한 설정
+        port: 3000,
+        publicPath: '/dist/',
+
+    //     // proxy: {
+    //     //     '/api/': {
+    //     //         target: 'http://localhost:3000',
+    //     //         changeOrigin: true,
+    //     //     }
+    //     // }
+    }
 };
 
 // 개발환경일 때 쓸 플러그인들
 if (isDevelopment && config.plugins) {
-    // config.plugins.push(new webpack.HotModuleReplacementPlugin());
-    // config.plugins.push(new ReactRefreshWebpackPlugin());
+    config.plugins.push(new webpack.HotModuleReplacementPlugin());
+    config.plugins.push(new ReactRefreshWebpackPlugin());
     // config.plugins.push(new BundleAnalyzerPlugin({ analyzeMode: 'server', openAnalyzer: false }));
 
 }
