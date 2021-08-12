@@ -78,7 +78,7 @@ const config: Configuration = {
         publicPath: '/dist/',
     },
     devServer: {
-        historyApiFallback: true,       // react router 설정시 필요한 설정
+        historyApiFallback: true,       // react router 설정시 필요한 설정 새로고침 시 사이트가 오류남 즉 새로고침 시 올바른 주소로 매핑시켜주게끔 도와줌
         port: 3000,
         publicPath: '/dist/',
 

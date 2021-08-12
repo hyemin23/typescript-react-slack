@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-   "dev": "cross-env TS_NODE_PROJECT=\\\"tsconfig-for-webpack-config.json\\\" webpack serve --env development",
+    "dev": "cross-env TS_NODE_PROJECT=\\\"tsconfig-for-webpack-config.json\\\" webpack serve --env development",
     "build": "cross-env TS_NODE_PROJECT=\\\"tsconfig-for-webpack-config.json\\\" NODE_ENV=production webpack"
   },
   "author": "",
@@ -29,7 +29,8 @@
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.0-rc.0",
     "@types/fork-ts-checker-webpack-plugin": "^0.4.5",
     "@types/node": "^14.14.31",
-    "@types/react-router-dom": "^5.1.7",
+    "@types/react-router": "^5.1.16",
+    "@types/react-router-dom": "^5.1.8",
     "@types/webpack": "^5.28.0",
     "@types/webpack-dev-server": "^3.11.1",
     "babel-loader": "^8.2.2",
