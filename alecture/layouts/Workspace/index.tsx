@@ -1,14 +1,30 @@
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import React, { FC, useCallback } from 'react';
-import { Redirect } from 'react-router-dom';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
+import {
+  Header,
+  ProfileImg,
+  RightMenu,
+  Workspaces,
+  WorkspaceWrapper,
+  Channels,
+  WorkspaceName,
+  MenuScroll,
+  Chats,
+} from './styles';
+import gravatar from 'gravatar';
+import DirectMessage from '@pages/DirectMessage';
+import loadable from '@loadable/component';
+
+const Channel = loadable(() => import('@pages/Channel'));
 
 // layout이기 때문에 children
 // children을 사용하는 컴포넌트 type : FC
 // children을 사용하지 않는 컴포넌트 type : VFC
 // type error는 FC로 가져오면 됨
-const Workspace = () => {
+const Workspace: FC = ({ children }) => {
   const {
     data: userData,
     error: loginError,
@@ -40,8 +56,26 @@ const Workspace = () => {
   }
   return (
     <div>
-      요기누르기
+      <Header>
+        <RightMenu>
+          <ProfileImg src={gravatar.url(userData.nickname, { s: '28px', d: 'retro' })} />
+        </RightMenu>
+      </Header>
       <button onClick={onLogOut}>로그아웃</button>
+      <WorkspaceWrapper>
+        <Workspaces>test</Workspaces>
+        <Channels>
+          <WorkspaceName>Sleact</WorkspaceName>
+          <MenuScroll>MenuScroll</MenuScroll>
+        </Channels>
+        <Chats>
+          <Switch>
+            <Route path="/workspace/:channel" component={Channel} />
+            <Route path="/workspace/dm" component={DirectMessage} />
+          </Switch>
+        </Chats>
+      </WorkspaceWrapper>
+      {children}
     </div>
   );
 };

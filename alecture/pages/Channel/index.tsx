@@ -1,8 +1,12 @@
-import Workspace from '@layouts/Workspace';
 import React from 'react';
+import { Container, Header } from './style';
 
 const Channel = () => {
-  return <div>gd</div>;
+  return (
+    <Container>
+      <Header>채널</Header>
+    </Container>
+  );
 };
 
 export default Channel;
