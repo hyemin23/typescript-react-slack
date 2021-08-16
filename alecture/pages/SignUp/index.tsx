@@ -1,11 +1,13 @@
 import useInput from '@hooks/useInput';
 import { Button, Error, Form, Header, Input, Label, LinkContainer, Success } from '@pages/SignUp/styles';
+import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import React, { useCallback, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
+import useSWR from 'swr';
 
 const SignUp = () => {
-  // 구조분해 할당으로 useInput에서 return해주는 3개의 인자들을 가져옴
+  const { data: userData } = useSWR('/api/users', fetcher);
   const [signUpError, setSignUpError] = useState(false);
   const [signUpSuccess, setSignUpSuccess] = useState(false);
   const [mismatchError, setMismatchError] = useState(false);
@@ -13,8 +15,6 @@ const SignUp = () => {
   const [nickname, onChangeNickname] = useInput('');
   const [password, , setPassword] = useInput('');
   const [passwordCheck, , setPasswordCheck] = useInput('');
-
-  // const { data: userData } = useSWR('/api/users', fetcher);
 
   const onChangePassword = useCallback(
     (e) => {
@@ -35,8 +35,6 @@ const SignUp = () => {
   const onSubmit = useCallback(
     (e) => {
       e.preventDefault();
-      console.log('onSubmit 클릭');
-
       if (!nickname || !nickname.trim()) {
         return;
       }
@@ -55,6 +53,10 @@ const SignUp = () => {
     },
     [email, nickname, password, mismatchError],
   );
+
+  if (userData) {
+    return <Redirect to="/workspace/sleact" />;
+  }
 
   return (
     <div id="container">
@@ -98,7 +100,7 @@ const SignUp = () => {
       </Form>
       <LinkContainer>
         이미 회원이신가요?&nbsp;
-        <Link to="login">로그인</Link>
+        <a href="/login">로그인 하러가기</a>
       </LinkContainer>
     </div>
   );
