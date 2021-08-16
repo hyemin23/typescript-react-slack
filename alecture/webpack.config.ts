@@ -77,17 +77,24 @@ const config: Configuration = {
     filename: '[name].js',
     publicPath: '/dist/',
   },
-  devServer: {
-    historyApiFallback: true, // react router 설정시 필요한 설정 새로고침 시 사이트가 오류남 즉 새로고침 시 올바른 주소로 매핑시켜주게끔 도와줌
-    port: 3000,
-    publicPath: '/dist/',
 
-    //     // proxy: {
-    //     //     '/api/': {
-    //     //         target: 'http://localhost:3000',
-    //     //         changeOrigin: true,
-    //     //     }
-    //     // }
+  devServer: {
+    historyApiFallback: true, //react router설정 시 필요한 설정. 새로고침 시 사이트가 오류남, 새로고침 시 올바른 주소로 매핑시켜 주게끔 도와줌
+    port: 3090,
+    publicPath: '/dist/',
+    // cors 오류 해결 방법 중 하나 proxy. 또는 server에서 설정
+    // proxy에서 api로 시작하는 요청은 3095로 보내야겠다는 의미.
+    // 추가적인 option 요청이 안 감.  ex) 마치 3095 포트를 쓰는 것 마냥 도메인 속여버림
+    // 단, 둘 다 localhost일 경우에만 cors 오류를 피해갈 수 있음
+    // 또한 proxy를 사용하지 않으면 axios 요청시 localhost:3095:~~ 이렇게 명시적으로 적어줘야함
+    // 배포시에는 proxy를 사용하지 않음
+    proxy: {
+      '/api/': {
+        target: 'http://localhost:3095',
+        changeOrigin: true,
+        ws: true,
+      },
+    },
   },
 };
 

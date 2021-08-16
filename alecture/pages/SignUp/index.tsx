@@ -1,28 +1,25 @@
 import useInput from '@hooks/useInput';
 import { Button, Error, Form, Header, Input, Label, LinkContainer, Success } from '@pages/SignUp/styles';
+import axios from 'axios';
 import React, { useCallback, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const SignUp = () => {
   // 구조분해 할당으로 useInput에서 return해주는 3개의 인자들을 가져옴
-  const [email, onChangeEmail] = useInput('');
-
   const [signUpError, setSignUpError] = useState(false);
   const [signUpSuccess, setSignUpSuccess] = useState(false);
   const [mismatchError, setMismatchError] = useState(false);
+  const [email, onChangeEmail] = useInput('');
+  const [nickname, onChangeNickname] = useInput('');
+  const [password, , setPassword] = useInput('');
+  const [passwordCheck, , setPasswordCheck] = useInput('');
 
-  const [nickname, setNickname] = useState('');
-  const [password, setPassword] = useState('');
-  const [passwordCheck, setPasswordCheck] = useState('');
-  const [missmatchError, setMissmatchError] = useState(false);
-
-  const onChangeNickname = useCallback((e) => {
-    setNickname(e.target.value);
-  }, []);
+  // const { data: userData } = useSWR('/api/users', fetcher);
 
   const onChangePassword = useCallback(
     (e) => {
       setPassword(e.target.value);
-      setMissmatchError(e.target.value !== passwordCheck);
+      setMismatchError(passwordCheck !== e.target.value);
     },
     [passwordCheck],
   );
@@ -30,21 +27,34 @@ const SignUp = () => {
   const onChangePasswordCheck = useCallback(
     (e) => {
       setPasswordCheck(e.target.value);
-      // 비밀번호가 같지 않을 경우
       setMismatchError(password !== e.target.value);
-
-      if (!missmatchError) {
-        setSignUpError(false);
-        setSignUpSuccess(false);
-        console.log('서버로 회원가입 하기');
-      }
     },
     [password],
   );
 
-  const onSubmit = useCallback((e) => {
-    e.preventDefault();
-  }, []);
+  const onSubmit = useCallback(
+    (e) => {
+      e.preventDefault();
+      console.log('onSubmit 클릭');
+
+      if (!nickname || !nickname.trim()) {
+        return;
+      }
+      if (!mismatchError) {
+        setSignUpError(false);
+        setSignUpSuccess(false);
+        axios
+          .post('/api/users', { email, nickname, password })
+          .then(() => {
+            setSignUpSuccess(true);
+          })
+          .catch((error) => {
+            setSignUpError(error.response?.data?.statusCode === 403);
+          });
+      }
+    },
+    [email, nickname, password, mismatchError],
+  );
 
   return (
     <div id="container">
@@ -88,7 +98,7 @@ const SignUp = () => {
       </Form>
       <LinkContainer>
         이미 회원이신가요?&nbsp;
-        <a href="/login">로그인 하러가기</a>
+        <Link to="login">로그인</Link>
       </LinkContainer>
     </div>
   );
