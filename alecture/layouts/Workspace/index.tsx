@@ -1,7 +1,7 @@
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import React, { FC, useCallback, useState } from 'react';
-import { Redirect, Route, Switch } from 'react-router-dom';
+import { Link, Redirect, Route, Switch } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
 import {
   Header,
@@ -13,11 +13,16 @@ import {
   WorkspaceName,
   MenuScroll,
   Chats,
+  ProfileModal,
+  LogOutButton,
+  WorkspaceButton,
+  AddButton,
 } from './styles';
 import gravatar from 'gravatar';
 import DirectMessage from '@pages/DirectMessage';
 import loadable from '@loadable/component';
 import Menu from '@components/Menu';
+import { IUser } from 'typings/db';
 
 const Channel = loadable(() => import('@pages/Channel'));
 
@@ -33,7 +38,7 @@ const Workspace: FC = ({ children }) => {
     error: loginError,
     revalidate: revalidateUser,
     mutate,
-  } = useSWR('/api/users', fetcher, {
+  } = useSWR<IUser | false>('/api/users', fetcher, {
     // dedupingInterval안에 요청을 하면 미리 캐싱된 data를 돌려줌
     dedupingInterval: 100000,
   });
@@ -56,28 +61,46 @@ const Workspace: FC = ({ children }) => {
     setShowUserMenu((prev) => !prev);
   }, []);
 
+  const onClickCreateWorkSpace = useCallback(() => {}, []);
   // 로그아웃이 되는 순간 data는 false가 되므로
   if (!userData) {
-    console.log(userData);
     return <Redirect to="/login" />;
   }
   return (
     <div>
       <Header>
-        <RightMenu>
-          <span onClick={onClickUserProfile}>
-            <ProfileImg src={gravatar.url(userData.nickname, { s: '28px', d: 'retro' })} />
+        {userData && (
+          <RightMenu>
+            <span onClick={onClickUserProfile}>
+              <ProfileImg src={gravatar.url(userData.email, { s: '28px', d: 'retro' })} alt={userData.nickname} />
+            </span>
             {showUserMenu && (
               <Menu style={{ right: 0, top: 38 }} show={showUserMenu} onCloseModal={onClickUserProfile}>
-                프로필메뉴
+                <ProfileModal>
+                  <img src={gravatar.url(userData.email, { s: '36px', d: 'retro' })} alt={userData.nickname} />
+                  <div>
+                    <span id="profile-name">{userData.nickname}</span>
+                    <span id="profile-active">Active</span>
+                  </div>
+                </ProfileModal>
+                <LogOutButton onClick={onLogOut}>로그아웃</LogOutButton>
               </Menu>
             )}
-          </span>
-        </RightMenu>
+          </RightMenu>
+        )}
       </Header>
-      <button onClick={onLogOut}>로그아웃</button>
+
       <WorkspaceWrapper>
-        <Workspaces>test</Workspaces>
+        <Workspaces>
+          {userData?.Workspaces.map((ws) => {
+            return (
+              <Link key={ws.id} to={`/workspace/${ws.url}/channel/일반`}>
+                <WorkspaceButton>{ws.name.slice(0, 1).toUpperCase()}</WorkspaceButton>
+              </Link>
+            );
+          })}
+          <AddButton onClick={onClickCreateWorkSpace}>+</AddButton>
+        </Workspaces>
         <Channels>
           <WorkspaceName>Sleact</WorkspaceName>
           <MenuScroll>MenuScroll</MenuScroll>
