@@ -18,8 +18,9 @@ const App = () => (
     <Route path="/login" component={LogIn} />
     <Route path="/signup" component={SignUp} />
     {/* 주의 : 이 안에서 router들은 workspace를 기본 prefix로 갖는다.(계층적인 구조로) */}
-
-    <Route path="/workspace" component={Workspace} />
+    {/* 콜론을 붙이면 앞에 param이 된다. */}
+    {/* 단, 파라미터가 있다면 !반드시 아래에 적어줘야한다! */}
+    <Route path="/workspace/:workspace" component={Workspace} />
   </Switch>
 );
 
