@@ -16,18 +16,21 @@ const ChatBox: VFC<Props> = ({ chat, onChangeChat, onSubmitForm, placeholder }) 
     }
   }, [textareaRef.current]);
 
-  const onKeydownChat = useCallback((e) => {
-    // 태그를 직접 접근하고 싶을 때
-    // Ref의 타입은 typescript에서만 적용해주면 됨.
+  const onKeydownChat = useCallback(
+    (e) => {
+      // 태그를 직접 접근하고 싶을 때
+      // Ref의 타입은 typescript에서만 적용해주면 됨.
 
-    if (e.key == 'Enter') {
-      // 줄 바꿈 처리 shift + enter 가 아닌 경우만
-      if (!e.shiftKey) {
-        e.preventDefault();
-        onSubmitForm(e);
+      if (e.key == 'Enter') {
+        // 줄 바꿈 처리 shift + enter 가 아닌 경우만
+        if (!e.shiftKey) {
+          e.preventDefault();
+          onSubmitForm(e);
+        }
       }
-    }
-  }, []);
+    },
+    [onSubmitForm],
+  );
 
   // 공통 compoentns인 chat box는 dm 채팅, channel의 채팅에 같이 사용 중. 따라서 여기서는 props로 올려줘야함 부모한테
   // 여기서 구체적인 작업을 하면 다른곳에서 재사용을 못함 즉, 나를 사용하는 쪽으로 구체적인 작업을 하게끔 올려줘야함.

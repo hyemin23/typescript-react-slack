@@ -1,6 +1,6 @@
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
-import React, { useCallback, useState, VFC } from 'react';
+import React, { useCallback, useEffect, useState, VFC } from 'react';
 import { Link, Redirect, Route, Switch, useParams } from 'react-router-dom';
 import useSWR from 'swr';
 import {
@@ -32,6 +32,7 @@ import CreateChannelModal from '@components/CreateChannelModal';
 import InviteWorkspaceModal from '@components/InviteWorkspaceModal';
 import InviteChannelModal from '@components/InviteChannelModal';
 import DMList from '@components/DMList';
+import useSocket from '@hooks/useSokets';
 
 const Channel = loadable(() => import('@pages/Channel'));
 
@@ -71,6 +72,16 @@ const Workspace: VFC = () => {
   const [showWorkspaceModal, setShowWorkspceModal] = useState(false);
   const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
 
+  // soketIO
+  const [soket, disconnect] = useSocket(workspace);
+
+  // 소켓 사용
+  useEffect(() => {
+    soket.on('message');
+    soket.emit();
+    disconnect();
+  }, []);
+
   const onLogOut = useCallback(() => {
     axios
       .post('/api/users/logout', null, {
@@ -83,7 +94,7 @@ const Workspace: VFC = () => {
       .catch((error) => {
         console.dir(error);
       });
-  }, []);
+  }, [mutate]);
 
   const onClickUserProfile = useCallback((e) => {
     e.stopPropagation();
