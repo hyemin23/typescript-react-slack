@@ -22,7 +22,7 @@
     "@types/react-mentions": "^4.1.0",
     "@types/react-router-dom": "^5.1.7",
     "@types/socket.io-client": "^1.4.35",
-    "autosize": "^4.0.2",
+    "autosize": "^4.0.4",
     "axios": "^0.21.1",
     "core-js": "^3.14.0",
     "cross-env": "^7.0.3",

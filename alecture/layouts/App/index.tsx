@@ -20,6 +20,7 @@ const App = () => (
     {/* 주의 : 이 안에서 router들은 workspace를 기본 prefix로 갖는다.(계층적인 구조로) */}
     {/* 콜론을 붙이면 앞에 param이 된다. */}
     {/* 단, 파라미터가 있다면 !반드시 아래에 적어줘야한다! */}
+    {/* useParam를 이용하여 받을 수 있음 */}
     <Route path="/workspace/:workspace" component={Workspace} />
   </Switch>
 );

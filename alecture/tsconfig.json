@@ -23,6 +23,7 @@
             ,"@utils/*" : ["utils/*"]
             ,"@styles/*" : ["styles/*"]
             ,"@images/*" : ["images/*"]
+            ,"@typings/*" : ["typings/*"]
 
         }
 
