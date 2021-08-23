@@ -1,4 +1,4 @@
-import { Header } from '@pages/SignUp/styles';
+import { Container, Header } from '@pages/DirectMessage/styles';
 import React, { useCallback } from 'react';
 import gravatar from 'gravatar';
 import useSWR from 'swr';
@@ -6,7 +6,6 @@ import { useParams } from 'react-router-dom';
 import fetcher from '@utils/fetcher';
 import ChatList from '@components/ChatList';
 import ChatBox from '@components/ChatBox';
-import { Container } from '@pages/Channel/style';
 import useInput from '@hooks/useInput';
 import axios from 'axios';
 import { IDM } from '@typings/db';
@@ -25,7 +24,7 @@ const DirectMessage = () => {
     data: chatData,
     mutate: mutateChat,
     revalidate,
-  } = useSWR<IDM[]>(`/api/workspaces/${workspace}/dms/${id}/chats?perPage=20=&page=1`, fetcher);
+  } = useSWR<IDM[]>(`/api/workspaces/${workspace}/dms/${id}/chats?perPage=20&page=1`, fetcher);
 
   const onSubmitForm = useCallback(
     (e) => {
@@ -63,7 +62,7 @@ const DirectMessage = () => {
         <img src={gravatar.url(userData.email, { s: '24px', d: 'retro' })} alt={userData.nickname} />
         <span>{userData.nickname}</span>
       </Header>
-      <ChatList />
+      <ChatList chatData={chatData} />
       <ChatBox chat={chat} onChangeChat={onChangeChat} onSubmitForm={onSubmitForm} placeholder="" />
     </Container>
   );

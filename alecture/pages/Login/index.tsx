@@ -25,8 +25,9 @@ const LogIn = () => {
         )
         .then((res) => {
           // 2번째 자리 : 서버 검사 여부
-          mutate(res.data, false);
-          // revalidate();
+          // mutate(res.data, false);
+
+          revalidate();
         })
         .catch((error) => {
           setLogInError(error.response?.data?.statusCode === 401);

@@ -1,6 +1,12 @@
 import { ChatArea, Form, MentionsTextarea, SendButton, Toolbox, EachMention } from '@components/ChatBox/styles';
+import { IUser } from '@typings/db';
+import fetcher from '@utils/fetcher';
 import autosize from 'autosize';
 import React, { useCallback, useEffect, useRef, VFC } from 'react';
+import { Mention } from 'react-mentions';
+import { useParams } from 'react-router-dom';
+import useSWR from 'swr';
+
 interface Props {
   chat: string;
   placeholder: string;
@@ -8,6 +14,18 @@ interface Props {
   onChangeChat: (e: any) => void;
 }
 const ChatBox: VFC<Props> = ({ chat, onChangeChat, onSubmitForm, placeholder }) => {
+  const { workspace } = useParams<{ workspace: string }>();
+  const {
+    data: userData,
+    error,
+    revalidate,
+    mutate,
+  } = useSWR<IUser | false>(`/api/users`, fetcher, {
+    dedupingInterval: 2000,
+  });
+
+  const { data } = useSWR<IUser[]>(userData ? `/api/workspace/${workspace}/members` : null, fetcher);
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -48,7 +66,18 @@ const ChatBox: VFC<Props> = ({ chat, onChangeChat, onSubmitForm, placeholder }) 
           onKeyDown={onKeydownChat}
           placeholder={placeholder}
           ref={textareaRef}
-        ></MentionsTextarea>
+        >
+          <Mention
+            appendSpaceOnAdd
+            trigger="@"
+            data={
+              memberData?.map((v) => ({
+                id: v.id,
+                display: v.nickname,
+              })) || []
+            }
+          />
+        </MentionsTextarea>
         <Toolbox>
           <SendButton
             className={
