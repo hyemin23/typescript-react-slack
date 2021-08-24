@@ -15,9 +15,21 @@ const Channel = () => {
   const [chat, onChangeChat, setChat] = useInput('');
   const { data: channelData } = useSWR<IChannel>(`/api/workspaces/${workspace}/channels/${channel}`, fetcher);
 
+  const result = regexifyString({
+    input: data.content,
+    // @[hyemin](7)
+    // escape 처리
+    // +는 1개이상 ?는 0개이상
+    // +?는 최대한 조금, +는 최대한 많이 ex) @[혜민]12](7)인 닉넴인경우
+    // \d 는 숫자
+    // | = OR
+    // \n = new line
+    pattern: /@\[.+?\]\(\d+?\)|\n/g,
+    decorator() {},
+  });
+
   const onSubmitForm = useCallback((e) => {
     e.preventDefault();
-    console.log('부모 input 서브밋');
     setChat('');
   }, []);
   const { data: channelMembersData } = useSWR<IUser[]>(
