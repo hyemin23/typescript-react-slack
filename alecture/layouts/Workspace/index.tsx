@@ -44,6 +44,12 @@ const DirectMessage = loadable(() => import('@pages/DirectMessage'));
 // children을 사용하지 않는 컴포넌트 type : VFC
 // type error는 FC로 가져오면 됨
 const Workspace: VFC = () => {
+  const onScroll = useCallback((values) => {
+    if (values.scrollTop === 0) {
+      console.log('가장위');
+    }
+  }, []);
+
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
   const [showInviteWorkspaceModal, setShowInviteWorkspaceModal] = useState(false);

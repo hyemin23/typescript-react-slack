@@ -1,7 +1,7 @@
 import { Container, Header } from '@pages/DirectMessage/styles';
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import gravatar from 'gravatar';
-import useSWR from 'swr';
+import useSWR, { useSWRInfinite } from 'swr';
 import { useParams } from 'react-router-dom';
 import fetcher from '@utils/fetcher';
 import ChatList from '@components/ChatList';
@@ -10,6 +10,7 @@ import useInput from '@hooks/useInput';
 import axios from 'axios';
 import { IDM } from '@typings/db';
 import makeSection from '@utils/makeSection';
+import Scrollbars from 'react-custom-scrollbars-2';
 
 const DirectMessage = () => {
   const [chat, onChangeChat, setChat] = useInput('');
@@ -25,14 +26,31 @@ const DirectMessage = () => {
     data: chatData,
     mutate: mutateChat,
     revalidate,
-  } = useSWR<IDM[]>(`/api/workspaces/${workspace}/dms/${id}/chats?perPage=20&page=1`, fetcher);
+    setSize, // page수를 바꿔주는 역할
+
+    // index : page 수 처음엔 0page 위에 올리면 1page로 됨
+    // infinite는 [][] 2차원배열로 나눠짐. useSWR은 1차원
+    // ex : [ [{id:1},{id:2}], [{id:3},{id:4}] ]
+  } = useSWRInfinite<IDM[]>(
+    (index) => `/api/workspaces/${workspace}/dms/${id}/chats?perPage=20&page=${index + 1}`,
+    fetcher,
+  );
+
+  // 인피니티 scroll을 할 때 변수 2개를 선언해주고 사용하면 좋음.
+  // isEmpty : data가 다 있는지 확인
+  // isReachingEnd : ex) 1페이지 : 20개, 2페이지 : 20개, 3페이지 :5개 라면,3페이지처럼 20개는 아니지만 data를 다 가져온 경우
+  const isEmpty = chatData?.[0]?.length === 0;
+  const isReachingEnd = isEmpty || (chatData && chatData[chatData.length - 1]?.length < 20) || false;
+
+  // 스크롤바 컨트롤
+  const scrollbarRef = useRef<Scrollbars>(null);
 
   // 채팅 정보 정렬
   // reverse 사용을 위한 이뮤타블 새로운 객체 생성
   // const chatSections = makeSection(chatData ? [...chatData].reverse() : []);
-  // console.log('chatSectionschatSections', chatSections);
 
-  const chatSections = makeSection(chatData ? ([] as IDM[]).concat(...chatData).reverse() : []);
+  // 2차원 배열을 1차원 배열로 만들기
+  const chatSections = makeSection(chatData ? chatData.flat().reverse() : []);
 
   const onSubmitForm = useCallback(
     (e) => {
@@ -70,7 +88,13 @@ const DirectMessage = () => {
         <img src={gravatar.url(userData.email, { s: '24px', d: 'retro' })} alt={userData.nickname} />
         <span>{userData.nickname}</span>
       </Header>
-      <ChatList chatSections={chatSections} />
+      <ChatList
+        chatSections={chatSections}
+        ref={scrollbarRef}
+        setSize={setSize}
+        isEmpty={isEmpty}
+        isReachingEnd={isReachingEnd}
+      />
       <ChatBox chat={chat} onChangeChat={onChangeChat} onSubmitForm={onSubmitForm} placeholder="" />
     </Container>
   );
