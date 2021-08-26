@@ -40,7 +40,7 @@ const Chat: VFC<Props> = ({ data }) => {
             );
           }
           //  여기는 줄바꿈일 경우
-          return <br key={index} />;
+          return <br key={match + index} />;
         },
       }),
     [data.content],

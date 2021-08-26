@@ -1,5 +1,5 @@
 import { Container, Header } from '@pages/DirectMessage/styles';
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import gravatar from 'gravatar';
 import useSWR, { useSWRInfinite } from 'swr';
 import { useParams } from 'react-router-dom';
@@ -57,9 +57,32 @@ const DirectMessage = () => {
       e.preventDefault();
       // 채팅 보내기
       console.log('chat', chat);
-      if (chat?.trim()) {
-        console.log('채팅 보내자 : ', chat.trim());
-        // 채팅 등록
+      if (chat?.trim() && chatData) {
+        const savedChat = chat;
+        // optimistic UI
+        // 성공하지 않아도 UI에 먼저 data를 그리는 기능
+        // server를 가기전에 먼저 mutate
+        //두 번째 인자 :  optimistic UI할 경우에는 shouldRevalidate : false 항상!
+        mutateChat((prevChatData) => {
+          prevChatData?.[0].unshift({
+            // DM객체
+            id: (chatData[0][0]?.id || 0) + 1,
+            SenderId: myData.id,
+            Sender: myData,
+            ReceiverId: myData.id,
+            Receiver: userData,
+            content: savedChat,
+            createdAt: new Date(),
+          });
+          return prevChatData;
+        }, false).then(() => {
+          // mutate 성공 후 스크롤 밑으로
+          setChat('');
+          revalidate();
+          scrollbarRef.current?.scrollToBottom();
+        });
+
+        // mutate 후 채팅 등록
         axios
           .post(`/api/workspaces/${workspace}/dms/${id}/chats`, {
             content: chat,
@@ -68,15 +91,24 @@ const DirectMessage = () => {
           .then(() => {
             // 채팅 등록 후 받아오기
             revalidate();
-            setChat('');
           })
           .catch((err) => {
             console.dir(err.response?.data);
           });
       }
     },
-    [chat],
+    [chat, chatData],
   );
+
+  // 로딩시 스크롤바 아래로
+  useEffect(() => {
+    if (chatData?.length === 1) {
+      // 채팅 data가 존재해서 불러오는 경우
+      if (chatData?.length === 1) {
+        scrollbarRef.current?.scrollToBottom();
+      }
+    }
+  }, [chatData, chat, myData, userData, workspace, id]);
 
   // 로딩중이거나 error일 경우
   if (!userData || !myData) {
