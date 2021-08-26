@@ -47,7 +47,7 @@ const Channel = () => {
           </button>
         </div>
       </Header>
-      <ChatList />
+      {/* <ChatList /> */}
       {/* 재사용되는것들은 props로 전달 */}
       <ChatBox chat={chat} onChangeChat={onChangeChat} onSubmitForm={onSubmitForm} placeholder="" />
     </Container>

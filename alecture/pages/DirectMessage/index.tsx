@@ -9,6 +9,7 @@ import ChatBox from '@components/ChatBox';
 import useInput from '@hooks/useInput';
 import axios from 'axios';
 import { IDM } from '@typings/db';
+import makeSection from '@utils/makeSection';
 
 const DirectMessage = () => {
   const [chat, onChangeChat, setChat] = useInput('');
@@ -25,6 +26,13 @@ const DirectMessage = () => {
     mutate: mutateChat,
     revalidate,
   } = useSWR<IDM[]>(`/api/workspaces/${workspace}/dms/${id}/chats?perPage=20&page=1`, fetcher);
+
+  // 채팅 정보 정렬
+  // reverse 사용을 위한 이뮤타블 새로운 객체 생성
+  // const chatSections = makeSection(chatData ? [...chatData].reverse() : []);
+  // console.log('chatSectionschatSections', chatSections);
+
+  const chatSections = makeSection(chatData ? ([] as IDM[]).concat(...chatData).reverse() : []);
 
   const onSubmitForm = useCallback(
     (e) => {
@@ -62,7 +70,7 @@ const DirectMessage = () => {
         <img src={gravatar.url(userData.email, { s: '24px', d: 'retro' })} alt={userData.nickname} />
         <span>{userData.nickname}</span>
       </Header>
-      <ChatList chatData={chatData} />
+      <ChatList chatSections={chatSections} />
       <ChatBox chat={chat} onChangeChat={onChangeChat} onSubmitForm={onSubmitForm} placeholder="" />
     </Container>
   );

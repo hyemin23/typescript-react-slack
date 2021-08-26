@@ -6,19 +6,30 @@ import { useRef } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 interface Props {
-  chatData?: IDM[];
+  chatSections: { [key: string]: IDM[] };
 }
 
-const ChatList: VFC<Props> = ({ chatData }) => {
+const ChatList: VFC<Props> = ({ chatSections }) => {
   const scrollbarRef = useRef(null);
   const onScroll = useCallback(() => {}, []);
-
   return (
     <ChatZone>
       <Scrollbars autoHide ref={scrollbarRef} onScrollFrame={onScroll}>
-        {chatData?.map((chat) => (
-          <Chat key={chat.id} data={chat} />
-        ))}
+        {/* Object.entries객체를 배열화시켜서 구조분해할당으로 받음 */}
+        {/* date : date, chats */}
+        {/* [] = 배열의 구조분해 할당 */}
+        {Object.entries(chatSections).map(([date, chats]) => {
+          return (
+            <Section className={`section-${date}`} key={date}>
+              <StickyHeader>
+                <button>{date}</button>
+              </StickyHeader>
+              {chats.map((chat) => (
+                <Chat key={chat.id} data={chat} />
+              ))}
+            </Section>
+          );
+        })}
       </Scrollbars>
     </ChatZone>
   );
