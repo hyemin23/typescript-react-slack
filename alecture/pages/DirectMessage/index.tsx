@@ -11,11 +11,14 @@ import axios from 'axios';
 import { IDM } from '@typings/db';
 import makeSection from '@utils/makeSection';
 import Scrollbars from 'react-custom-scrollbars-2';
+import { Socket } from 'net';
+import useSocket from '@hooks/useSocket';
+import { toast } from 'react-toastify';
 
 const DirectMessage = () => {
-  const [chat, onChangeChat, setChat] = useInput('');
-
   const { workspace, id } = useParams<{ workspace: string; id: string }>();
+  const [socket] = useSocket(workspace);
+  const [chat, onChangeChat, setChat] = useInput('');
   // 상대방 데이터
   const { data: userData } = useSWR(`/api/workspaces/${workspace}/members/${id}`, fetcher);
 
@@ -110,10 +113,56 @@ const DirectMessage = () => {
     }
   }, [chatData, chat, myData, userData, workspace, id]);
 
-  // 로딩중이거나 error일 경우
+  const onMessage = useCallback(
+    (data: IDM) => {
+      // id는 상대방 아이디
+      // 내 채팅이 아닌 상대방 메세지만 mutateChat
+      if (data.SenderId === Number(id) && myData.id !== Number(id)) {
+        mutateChat((chatData) => {
+          // 가장 최신 배열에 최신으로 넣기
+          chatData?.[0].unshift(data);
+          return chatData;
+        }, false).then(() => {
+          if (scrollbarRef.current) {
+            // 스크롤바를 150px위일 경우에만 스크롤바를 밑으로 자동 이동
+            if (
+              scrollbarRef.current.getScrollHeight() <
+              scrollbarRef.current.getClientHeight() + scrollbarRef.current.getScrollTop() + 150
+            ) {
+              console.log('scrollToBottom!', scrollbarRef.current?.getValues());
+              setTimeout(() => {
+                scrollbarRef.current?.scrollToBottom();
+              }, 100);
+            } else {
+              toast.success('새 메시지가 도착했습니다.', {
+                onClick() {
+                  scrollbarRef.current?.scrollToBottom();
+                },
+                closeOnClick: true,
+              });
+            }
+          }
+        });
+      }
+    },
+    [id, myData, mutateChat],
+  );
+
+  useEffect(() => {
+    socket?.on('dm', onMessage);
+    return () => {
+      socket?.off('dm', onMessage);
+    };
+  }, [socket, onMessage]);
+
+  useEffect(() => {
+    localStorage.setItem(`${workspace}-${id}`, new Date().getTime().toString());
+  }, [workspace, id]);
+
   if (!userData || !myData) {
     return null;
   }
+
   return (
     <Container>
       <Header>
@@ -121,13 +170,18 @@ const DirectMessage = () => {
         <span>{userData.nickname}</span>
       </Header>
       <ChatList
-        chatSections={chatSections}
         ref={scrollbarRef}
-        setSize={setSize}
-        isEmpty={isEmpty}
         isReachingEnd={isReachingEnd}
+        isEmpty={isEmpty}
+        chatSections={chatSections}
+        setSize={setSize}
       />
-      <ChatBox chat={chat} onChangeChat={onChangeChat} onSubmitForm={onSubmitForm} placeholder="" />
+      <ChatBox
+        onSubmitForm={onSubmitForm}
+        chat={chat}
+        onChangeChat={onChangeChat}
+        placeholder={`Message ${userData.nickname}`}
+      />
     </Container>
   );
 };
