@@ -41,6 +41,7 @@ const ChatList = forwardRef<Scrollbars, Props>(({ chatSections, setSize, isEmpty
               <StickyHeader>
                 <button>{date}</button>
               </StickyHeader>
+              {/* 채팅내역 불러오기 */}
               {chats.map((chat) => (
                 <Chat key={chat.id} data={chat} />
               ))}
